@@ -70,3 +70,6 @@
 
 - python-urx: v0.11.02 <a href="https://github.com/SintefManufacturing/python-urx">https://github.com/SintefManufacturing/python-urx</a>
 - yolov5: <a href="https://github.com/ultralytics/yolov5">https://github.com/ultralytics/yolov5</a>
+
+
+pip install PyQt5 seaborn pandas matplotlib pyyaml tqdm torchvision image requests torch urx opencv-python PySide2
