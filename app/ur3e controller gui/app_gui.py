@@ -15,7 +15,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtGui, QtWidgets, QtCore
 from PySide2.QtMultimedia import QCameraInfo
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QThread
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QThread, QObject
 
 
 LABELS = ["mov_up", "mov_dwn", "mov_lft", "mov_rght", "mov_frt", "mov_bck", "spin_l", "spin_r", "gr_open", "gr_close"]
@@ -39,15 +39,24 @@ PROMPT_TXT = ["DETECTING HAND GESTURE...",
     : saveCapture : save current frame 
     : stop : terminate the video feed
 """
+
+
+
+
 class VideoThread(QThread):
     change_pixmap_signal = pyqtSignal(np.ndarray)
 
-    def __init__(self):
+    def __init__(self, mutex, condition):
         super().__init__()
         self._run_flag = True
         self._current_gesture = ''
         self.cv_img = ''
         self.detected_label = ''
+        self.mutex = mutex
+        self.condition = condition
+        # Create Robot instance
+        self.robot = ''
+        self.robot = ur_lib.UR3_Robot()
 
     def setGesture(self, idx):
         print('[*] Setting GESTURE :',LABELS[idx])
@@ -63,8 +72,10 @@ class VideoThread(QThread):
             else:
                 self.cv_img = stream[1]
                 self.change_pixmap_signal.emit(self.cv_img)
-                self.detected_label = stream[0] 
+                self.detected_label = stream[0]
+                self.getAction()
                 print("DETECTED=",stream[0])
+
 
     def saveCapture(self):
         if self._current_gesture == "":
@@ -84,13 +95,43 @@ class VideoThread(QThread):
             return 1
         
     def getDetectedLabel(self):
+
         return self.detected_label
 
     def stop(self):
         print('[*] OFFLINE Camera')
+        self.stopped = True
         self._run_flag = False
         self.wait()
 
+    def getAction(self):
+
+            data = self.getDetectedLabel()
+            if data == "mov_up":
+                self.send_command("u")
+            elif data == "mov_dwn":
+                self.send_command("d")
+            elif data == "mov_lft":
+                self.send_command("l")
+            elif data == "mov_rght":
+                self.send_command("r")
+            elif data == "mov_frt":
+                self.send_command("f")
+            elif data == "mov_bck":
+                self.send_command("b")
+            elif data == "spin_l":
+                self.send_command("sl")
+            elif data == "spin_r":
+                self.send_command("sr")
+            elif data == "gr_open":
+                self.send_command("o")
+            elif data == "gr_close":
+                self.send_command("c")
+
+    def send_command(self, CMD):
+        if self.robot:
+            self.robot.move_direction(CMD)
+            pass
 """
 :Ui_MainWindow
 ===================================
@@ -102,18 +143,17 @@ class VideoThread(QThread):
     : update_image : updates the image_label with a new opencv image
     : convert_cv_qt : convert from an opencv image to QPixmap
 """
-class Ui_MainWindow(object):
+
+class Ui_MainWindow(QWidget):
 
     _in_use_btn = None
 
     def setupUi(self, MainWindow):
+        self.mutex.lock()
 
-        # Create Robot instance
-        self.robot = ''
-        self.robot = ur_lib.UR3_Robot()
 
         # Main Window Settings
-        MainWindow.setObjectName("MainWindow")
+        MainWindow.setObjectName("HandGestureDetection")
         MainWindow.resize(870, 460)
         MainWindow.setUnifiedTitleAndToolBarOnMac(False)
 
@@ -194,12 +234,14 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         # Start Video Thread
-        self.thread = VideoThread()
+        self.thread = VideoThread(mutex = self.mutex,condition=self.condition)
         self.thread.change_pixmap_signal.connect(self.update_image)
         self.thread.start()
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+
 
     def retranslateUi(self, MainWindow):
 
@@ -241,53 +283,7 @@ class Ui_MainWindow(object):
     def update_image(self, cv_img):
         qt_img = self.convert_cv_qt(cv_img)
         self.label.setPixmap(qt_img)
-
-        # update prompt txt based on detection
-        data = self.thread.getDetectedLabel()
-        if data and data != '0':
-            if data[::-1][0] == 's':
-                data = data[:len(data)-1] # strip s from end
-            self.setPrompt(PROMPT_TXT[LABELS.index(data)+1])
-            if data == "mov_up":
-                self.selectButton(self.pushButton)
-                self.send_command("u")
-            elif data == "mov_dwn":
-                self.selectButton(self.pushButton_2)
-                self.send_command("d")
-            elif data == "mov_lft":
-                self.selectButton(self.pushButton_3)
-                self.send_command("l")
-            elif data == "mov_rght":
-                self.selectButton(self.pushButton_4)
-                self.send_command("r")
-            elif data == "mov_frt":
-                self.selectButton(self.pushButton_5)
-                self.send_command("f")
-            elif data == "mov_bck":
-                self.selectButton(self.pushButton_6)
-                self.send_command("b")
-            elif data == "spin_l":
-                self.selectButton(self.pushButton_7)
-                self.send_command("sl")
-            elif data == "spin_r":
-                self.selectButton(self.pushButton_8)
-                self.send_command("sr")
-            elif data == "gr_open":
-                self.selectButton(self.pushButton_8)
-                self.send_command("o")
-            elif data == "gr_close":
-                self.selectButton(self.pushButton_8)
-                self.send_command("c")
-        else:
-            # unselect buttons
-            self.setPrompt(PROMPT_TXT[0])
-            if self._in_use_btn != None:
-                self._in_use_btn.setStyleSheet("background-color: #e1e1e1")
-    
-    def send_command(self, CMD):
-        if self.robot:
-            self.robot.move_direction(CMD)
-            pass
+        self.update_prompt()
 
     def convert_cv_qt(self, cv_img):
         rgb_image = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
@@ -296,4 +292,47 @@ class Ui_MainWindow(object):
         convert_to_Qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
         p = convert_to_Qt_format.scaled(self.video_width, self.video_height, Qt.KeepAspectRatio)
         return QPixmap.fromImage(p)
+
+    def update_prompt(self):
+        # update prompt txt based on detection
+        data = self.thread.getDetectedLabel()
+        if data and data != '0':
+            if data[::-1][0] == 's':
+                data = data[:len(data) - 1]  # strip s from end
+            self.setPrompt(PROMPT_TXT[LABELS.index(data) + 1])
+            if data == "mov_up":
+                self.selectButton(self.pushButton)
+                #self.send_command("u")
+            elif data == "mov_dwn":
+                self.selectButton(self.pushButton_2)
+                #self.send_command("d")
+            elif data == "mov_lft":
+                self.selectButton(self.pushButton_3)
+                #self.send_command("l")
+            elif data == "mov_rght":
+                self.selectButton(self.pushButton_4)
+                #self.send_command("r")
+            elif data == "mov_frt":
+                self.selectButton(self.pushButton_5)
+                #self.send_command("f")
+            elif data == "mov_bck":
+                self.selectButton(self.pushButton_6)
+                #self.send_command("b")
+            elif data == "spin_l":
+                self.selectButton(self.pushButton_7)
+                #self.send_command("sl")
+            elif data == "spin_r":
+                self.selectButton(self.pushButton_8)
+                #self.send_command("sr")
+            elif data == "gr_open":
+                self.selectButton(self.pushButton_8)
+                #self.send_command("o")
+            elif data == "gr_close":
+                self.selectButton(self.pushButton_8)
+                #self.send_command("c")
+        else:
+            # unselect buttons
+            self.setPrompt(PROMPT_TXT[0])
+            if self._in_use_btn != None:
+                self._in_use_btn.setStyleSheet("background-color: #e1e1e1")
 
