@@ -2,6 +2,7 @@ import time
 import logging
 import urx
 import sys
+from urx.robotiq_two_finger_gripper import Robotiq_Two_Finger_Gripper
 
 
 class UR3_Robot:
@@ -17,7 +18,8 @@ class UR3_Robot:
     socket = 0
 
     def __init__(self):
-        self.rob = urx.Robot("192.168.1.190")
+        self.rob = urx.Robot("192.168.43.128")
+        self.robotiqgrip = Robotiq_Two_Finger_Gripper(self.rob)
         self.rob.set_tcp((0, 0, 0.1, 0, 0, 0))
         self.rob.set_payload(2, (0, 0, 0.1))
         self.socket = self.rob.secmon._s_secondary
@@ -40,11 +42,11 @@ class UR3_Robot:
 
     def move_joints(self, j1, j2, j3, j4, j5, j6, a= '1.39', v='1.25'):
         self.rob.movej((j1, j2, j3, j4, j5, j6), a, v)
-        time.sleep(2)
+        #time.sleep(2)
 
     def move_linear(self, x, y, z, rx, ry, rz, a= '1.39', v='.25'):
         self.rob.movel((x, y, z, rx, ry, rz), a, v, relative=True)
-        time.sleep(0.5)
+        #time.sleep(0.5)
 
     def move_right(self):
         if self.left_right - 1 >= -16:
@@ -117,13 +119,19 @@ class UR3_Robot:
 
     def move_direction(self, direction):
         d = {'r' : self.move_right, 'l' : self.move_left, 'u' : self.move_up, 'd' : self.move_down, 'f' : self.move_front,
-             'b' : self.move_back, 'def' : self.move_default, 'sl' : self.spin_left, 'sr' : self.spin_right, 'o' : self.open_grip,
-             'c' : self.close_grip}
+             'b' : self.move_back, 'def' : self.move_default, 'sl' : self.spin_left, 'sr' : self.spin_right, 'o' : self.grip_open,
+             'c' : self.grip_close}
 
         d[direction]()
 
     def terminate(self):
         self.rob.close()
+
+    def grip_close(self):
+        self.robotiqgrip.close_gripper()
+
+    def grip_open(self):
+        self.robotiqgrip.open_gripper()
 
     def open_grip(self):
         print("Opening gripper")
