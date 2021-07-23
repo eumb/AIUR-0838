@@ -7,6 +7,7 @@ import sys
 import cv2
 import time
 import uuid
+
 sys.path.append('../ur3e library/')
 import ur_lib
 import numpy as np
@@ -16,7 +17,6 @@ from PyQt5.QtWidgets import *
 from PyQt5 import QtGui, QtWidgets, QtCore
 from PySide2.QtMultimedia import QCameraInfo
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QThread, QObject
-
 
 LABELS = ["mov_up", "mov_dwn", "mov_lft", "mov_rght", "mov_frt", "mov_bck", "spin_l", "spin_r", "gr_open", "gr_close"]
 PROMPT_TXT = ["DETECTING HAND GESTURE...",
@@ -41,8 +41,6 @@ PROMPT_TXT = ["DETECTING HAND GESTURE...",
 """
 
 
-
-
 class VideoThread(QThread):
     change_pixmap_signal = pyqtSignal(np.ndarray)
 
@@ -59,7 +57,7 @@ class VideoThread(QThread):
         self.robot = ur_lib.UR3_Robot()
 
     def setGesture(self, idx):
-        print('[*] Setting GESTURE :',LABELS[idx])
+        print('[*] Setting GESTURE :', LABELS[idx])
         self._current_gesture = LABELS[idx]
 
     def run(self):
@@ -74,8 +72,7 @@ class VideoThread(QThread):
                 self.change_pixmap_signal.emit(self.cv_img)
                 self.detected_label = stream[0]
                 self.getAction()
-                print("DETECTED=",stream[0])
-
+                print("DETECTED=", stream[0])
 
     def saveCapture(self):
         if self._current_gesture == "":
@@ -87,13 +84,13 @@ class VideoThread(QThread):
             frame_name = self._current_gesture + '.' + '{}.jpg'.format(str(uuid.uuid1()))
 
             if not os.path.exists(folder_path):
-                print("[*] Creating Directory:", folder_path+frame_name)
+                print("[*] Creating Directory:", folder_path + frame_name)
                 os.makedirs(folder_path)
 
             cv2.imwrite(folder_path + frame_name, self.cv_img)
 
             return 1
-        
+
     def getDetectedLabel(self):
 
         return self.detected_label
@@ -106,32 +103,34 @@ class VideoThread(QThread):
 
     def getAction(self):
 
-            data = self.getDetectedLabel()
-            if data == "mov_up":
-                self.send_command("u")
-            elif data == "mov_dwn":
-                self.send_command("d")
-            elif data == "mov_lft":
-                self.send_command("l")
-            elif data == "mov_rght":
-                self.send_command("r")
-            elif data == "mov_frt":
-                self.send_command("f")
-            elif data == "mov_bck":
-                self.send_command("b")
-            elif data == "spin_l":
-                self.send_command("sl")
-            elif data == "spin_r":
-                self.send_command("sr")
-            elif data == "gr_open":
-                self.send_command("o")
-            elif data == "gr_close":
-                self.send_command("c")
+        data = self.getDetectedLabel()
+        if data == "mov_up":
+            self.send_command("u")
+        elif data == "mov_dwn":
+            self.send_command("d")
+        elif data == "mov_lft":
+            self.send_command("l")
+        elif data == "mov_rght":
+            self.send_command("r")
+        elif data == "mov_frt":
+            self.send_command("f")
+        elif data == "mov_bck":
+            self.send_command("b")
+        elif data == "spin_l":
+            self.send_command("sl")
+        elif data == "spin_r":
+            self.send_command("sr")
+        elif data == "gr_open":
+            self.send_command("o")
+        elif data == "gr_close":
+            self.send_command("c")
 
     def send_command(self, CMD):
         if self.robot:
             self.robot.move_direction(CMD)
             pass
+
+
 """
 :Ui_MainWindow
 ===================================
@@ -144,14 +143,15 @@ class VideoThread(QThread):
     : convert_cv_qt : convert from an opencv image to QPixmap
 """
 
-class Ui_MainWindow(QWidget):
 
+class Ui_MainWindow(QWidget):
     _in_use_btn = None
 
     def setupUi(self, MainWindow):
         self.mutex.lock()
-
-
+        # Create Robot instance
+        self.robot1 = ''
+        self.robot1 = ur_lib.UR3_Robot()
         # Main Window Settings
         MainWindow.setObjectName("HandGestureDetection")
         MainWindow.resize(870, 460)
@@ -170,47 +170,47 @@ class Ui_MainWindow(QWidget):
         self.textBrowser = QtWidgets.QTextBrowser(self.frame)
         self.textBrowser.setGeometry(QtCore.QRect(480, 0, 371, 291))
         self.textBrowser.setObjectName("textBrowser")
-        self.textBrowser.setText( PROMPT_TXT[0] )
+        self.textBrowser.setText(PROMPT_TXT[0])
         self.textBrowser.setAlignment(Qt.AlignCenter)
-        header_font=QtGui.QFont('Arial', 20)
+        header_font = QtGui.QFont('Arial', 20)
         header_font.setBold(True)
-        self.textBrowser.setFont(header_font) 
+        self.textBrowser.setFont(header_font)
         self.textBrowser.setStyleSheet("QTextBrowser { background: #ffffff; padding-top: 110 }")
 
         # Controll Buttons
         self.pushButton = QtWidgets.QPushButton(self.frame)
         self.pushButton.setGeometry(QtCore.QRect(480, 300, 131, 41))
-        self.pushButton.setObjectName( LABELS[0] )
+        self.pushButton.setObjectName(LABELS[0])
         self.pushButton.clicked.connect(lambda: self.selectButton(self.pushButton))
         self.pushButton.setStyleSheet("background-color: #e1e1e1")
         self.pushButton_2 = QtWidgets.QPushButton(self.frame)
         self.pushButton_2.setGeometry(QtCore.QRect(610, 300, 121, 41))
-        self.pushButton_2.setObjectName( LABELS[1] )
+        self.pushButton_2.setObjectName(LABELS[1])
         self.pushButton_2.clicked.connect(lambda: self.selectButton(self.pushButton_2))
         self.pushButton_2.setStyleSheet("background-color: #e1e1e1")
         self.pushButton_3 = QtWidgets.QPushButton(self.frame)
         self.pushButton_3.setGeometry(QtCore.QRect(730, 300, 121, 41))
-        self.pushButton_3.setObjectName( LABELS[2] )
+        self.pushButton_3.setObjectName(LABELS[2])
         self.pushButton_3.clicked.connect(lambda: self.selectButton(self.pushButton_3))
         self.pushButton_3.setStyleSheet("background-color: #e1e1e1")
         self.pushButton_4 = QtWidgets.QPushButton(self.frame)
         self.pushButton_4.setGeometry(QtCore.QRect(480, 340, 131, 41))
-        self.pushButton_4.setObjectName( LABELS[3] )
+        self.pushButton_4.setObjectName(LABELS[3])
         self.pushButton_4.clicked.connect(lambda: self.selectButton(self.pushButton_4))
         self.pushButton_4.setStyleSheet("background-color: #e1e1e1")
         self.pushButton_5 = QtWidgets.QPushButton(self.frame)
         self.pushButton_5.setGeometry(QtCore.QRect(610, 340, 121, 41))
-        self.pushButton_5.setObjectName( LABELS[4] )
+        self.pushButton_5.setObjectName(LABELS[4])
         self.pushButton_5.clicked.connect(lambda: self.selectButton(self.pushButton_5))
         self.pushButton_5.setStyleSheet("background-color: #e1e1e1")
         self.pushButton_6 = QtWidgets.QPushButton(self.frame)
         self.pushButton_6.setGeometry(QtCore.QRect(730, 340, 121, 41))
-        self.pushButton_6.setObjectName( LABELS[5] )
+        self.pushButton_6.setObjectName(LABELS[5])
         self.pushButton_6.clicked.connect(lambda: self.selectButton(self.pushButton_6))
         self.pushButton_6.setStyleSheet("background-color: #e1e1e1")
         self.pushButton_7 = QtWidgets.QPushButton(self.frame)
         self.pushButton_7.setGeometry(QtCore.QRect(480, 380, 201, 41))
-        self.pushButton_7.setObjectName( LABELS[6] )
+        self.pushButton_7.setObjectName(LABELS[6])
         self.pushButton_7.clicked.connect(lambda: self.selectButton(self.pushButton_7))
         self.pushButton_7.setStyleSheet("background-color: #e1e1e1")
         self.pushButton_8 = QtWidgets.QPushButton(self.frame)
@@ -234,14 +234,12 @@ class Ui_MainWindow(QWidget):
         MainWindow.setStatusBar(self.statusbar)
 
         # Start Video Thread
-        self.thread = VideoThread(mutex = self.mutex,condition=self.condition)
+        self.thread = VideoThread(mutex=self.mutex, condition=self.condition)
         self.thread.change_pixmap_signal.connect(self.update_image)
         self.thread.start()
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
-
 
     def retranslateUi(self, MainWindow):
 
@@ -265,16 +263,38 @@ class Ui_MainWindow(QWidget):
 
         self._in_use_btn = btn
         btn.setStyleSheet("background-color: #8fb4cf")
-        print('[*] Button',btn.text(),"was pressed")
-        if btn.text()[::-1][0].isdigit():
-            self.setPrompt( PROMPT_TXT[int(btn.text()[::-1][0])] )
-        elif btn.text() == '<--------------':
-            self.setPrompt( PROMPT_TXT[7] )
-        else:
-            self.setPrompt( PROMPT_TXT[8] )
+        print('[*] Button', btn.text(), "was pressed")
+        #if btn.text()[::-1][0].isdigit():
+        #    self.setPrompt(PROMPT_TXT[int(btn.text()[::-1][0])])
+        if btn.text() == 'Move Up':
+            self.setPrompt(PROMPT_TXT[1])
+            self.send_commands("u")
+
+        if btn.text() == 'Move Down':
+            self.setPrompt(PROMPT_TXT[2])
+            self.send_commands("d")
+        if btn.text() == 'Move Left':
+            self.setPrompt(PROMPT_TXT[3])
+            self.send_commands("l")
+        if btn.text() == 'Move Right':
+            self.setPrompt(PROMPT_TXT[4])
+            self.send_commands("r")
+        if btn.text() == 'Move Forward':
+            self.setPrompt(PROMPT_TXT[5])
+            self.send_commands("f")
+        if btn.text() == 'Move Backward':
+            self.setPrompt(PROMPT_TXT[6])
+            self.send_commands("b")
+        if btn.text() == '<--------------':
+            self.setPrompt(PROMPT_TXT[7])
+            self.send_commands("sr")
+        if btn.text() == '-------------->':
+            self.setPrompt(PROMPT_TXT[8])
+            self.send_commands("sl")
+
 
     def setPrompt(self, data):
-        self.textBrowser.setText( data )
+        self.textBrowser.setText(data)
         self.textBrowser.setAlignment(Qt.AlignCenter)
 
     def setOfflineCamera(self):
@@ -300,39 +320,14 @@ class Ui_MainWindow(QWidget):
             if data[::-1][0] == 's':
                 data = data[:len(data) - 1]  # strip s from end
             self.setPrompt(PROMPT_TXT[LABELS.index(data) + 1])
-            if data == "mov_up":
-                self.selectButton(self.pushButton)
-                #self.send_command("u")
-            elif data == "mov_dwn":
-                self.selectButton(self.pushButton_2)
-                #self.send_command("d")
-            elif data == "mov_lft":
-                self.selectButton(self.pushButton_3)
-                #self.send_command("l")
-            elif data == "mov_rght":
-                self.selectButton(self.pushButton_4)
-                #self.send_command("r")
-            elif data == "mov_frt":
-                self.selectButton(self.pushButton_5)
-                #self.send_command("f")
-            elif data == "mov_bck":
-                self.selectButton(self.pushButton_6)
-                #self.send_command("b")
-            elif data == "spin_l":
-                self.selectButton(self.pushButton_7)
-                #self.send_command("sl")
-            elif data == "spin_r":
-                self.selectButton(self.pushButton_8)
-                #self.send_command("sr")
-            elif data == "gr_open":
-                self.selectButton(self.pushButton_8)
-                #self.send_command("o")
-            elif data == "gr_close":
-                self.selectButton(self.pushButton_8)
-                #self.send_command("c")
+
         else:
             # unselect buttons
             self.setPrompt(PROMPT_TXT[0])
             if self._in_use_btn != None:
                 self._in_use_btn.setStyleSheet("background-color: #e1e1e1")
 
+    def send_commands(self, CMD):
+        if self.robot1:
+            self.robot1.move_direction(CMD)
+            pass
