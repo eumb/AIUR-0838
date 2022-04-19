@@ -11,6 +11,7 @@ import torch
 import torch.backends.cudnn as cudnn
 from numpy import random
 
+
 from models.experimental import attempt_load
 from utils.datasets import LoadStreams, LoadImages
 from utils.general import check_img_size, check_requirements, check_imshow, non_max_suppression, apply_classifier, \
@@ -21,8 +22,12 @@ from utils.torch_utils import select_device, load_classifier, time_synchronized
 class arguments:
     def __init__(self):
         self.weights = "../model/last_new_set.pt"
-        self.source = '0'
-        self.img_size = 640 
+        #self.source = 'http://192.168.18.21:8080/video'
+        #webcam
+        self.source = '1'
+        #self.source = 'rtsp://admin:Nokia02!@192.168.18.23/cam/realmonitor?channel=1&subtype=01&authbasic=YWRtaW46Tm9raWEwMiE='
+        #self.source = 'http://admin:Nokia02!@192.168.18.23/axis-cgi/mjpg/video.cgi?camera=1&resolution=320x240'
+        self.img_size = 512
         self.conf_thres = 0.25
         self.iou_thres = 0.45
         self.device = ''
@@ -36,6 +41,7 @@ class arguments:
         self.project = 'runs/detect'
         self.name = 'exp'
         self.exist_ok = None
+
 
 opt = arguments()
 
@@ -51,7 +57,7 @@ def detect(save_img=False):
     # Initialize
     set_logging()
     device = select_device(opt.device) # CPU
-    # device = torch.device('cuda:1') # GPU
+    #device = torch.device('cuda:1') # GPU
     print(device)
     half = device.type != 'cpu'  # half precision only supported on CUDA
 

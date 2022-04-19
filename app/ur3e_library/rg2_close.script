@@ -1,0 +1,4 @@
+def gripper():
+    textmsg("closing gripper")
+    RG2(0, 10, 0.5, True, False, False)
+end

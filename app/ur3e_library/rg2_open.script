@@ -1,0 +1,4 @@
+def gripper():
+    textmsg("opening gripper")
+    rg_grip(110,40,1)
+end

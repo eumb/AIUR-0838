@@ -8,7 +8,7 @@ import cv2
 import time
 import uuid
 
-sys.path.append('../ur3e library/')
+sys.path.append('../ur3e_library/')
 import ur_lib
 import numpy as np
 from detect import *
@@ -154,7 +154,7 @@ class Ui_MainWindow(QWidget):
         self.robot1 = ur_lib.UR3_Robot()
         # Main Window Settings
         MainWindow.setObjectName("HandGestureDetection")
-        MainWindow.resize(870, 460)
+        MainWindow.resize(1400, 630 )
         MainWindow.setUnifiedTitleAndToolBarOnMac(False)
 
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -168,7 +168,7 @@ class Ui_MainWindow(QWidget):
 
         # Prompt Messages Frame
         self.textBrowser = QtWidgets.QTextBrowser(self.frame)
-        self.textBrowser.setGeometry(QtCore.QRect(480, 0, 371, 291))
+        self.textBrowser.setGeometry(QtCore.QRect(1300, 0, 361, 281))
         self.textBrowser.setObjectName("textBrowser")
         self.textBrowser.setText(PROMPT_TXT[0])
         self.textBrowser.setAlignment(Qt.AlignCenter)
@@ -179,50 +179,50 @@ class Ui_MainWindow(QWidget):
 
         # Controll Buttons
         self.pushButton = QtWidgets.QPushButton(self.frame)
-        self.pushButton.setGeometry(QtCore.QRect(480, 300, 131, 41))
+        self.pushButton.setGeometry(QtCore.QRect(1300, 300, 121, 41))
         self.pushButton.setObjectName(LABELS[0])
         self.pushButton.clicked.connect(lambda: self.selectButton(self.pushButton))
         self.pushButton.setStyleSheet("background-color: #e1e1e1")
         self.pushButton_2 = QtWidgets.QPushButton(self.frame)
-        self.pushButton_2.setGeometry(QtCore.QRect(610, 300, 121, 41))
+        self.pushButton_2.setGeometry(QtCore.QRect(1421, 300, 121, 41))
         self.pushButton_2.setObjectName(LABELS[1])
         self.pushButton_2.clicked.connect(lambda: self.selectButton(self.pushButton_2))
         self.pushButton_2.setStyleSheet("background-color: #e1e1e1")
         self.pushButton_3 = QtWidgets.QPushButton(self.frame)
-        self.pushButton_3.setGeometry(QtCore.QRect(730, 300, 121, 41))
+        self.pushButton_3.setGeometry(QtCore.QRect(1542, 300, 121, 41))
         self.pushButton_3.setObjectName(LABELS[2])
         self.pushButton_3.clicked.connect(lambda: self.selectButton(self.pushButton_3))
         self.pushButton_3.setStyleSheet("background-color: #e1e1e1")
         self.pushButton_4 = QtWidgets.QPushButton(self.frame)
-        self.pushButton_4.setGeometry(QtCore.QRect(480, 340, 131, 41))
+        self.pushButton_4.setGeometry(QtCore.QRect(1300, 340, 121, 41))
         self.pushButton_4.setObjectName(LABELS[3])
         self.pushButton_4.clicked.connect(lambda: self.selectButton(self.pushButton_4))
         self.pushButton_4.setStyleSheet("background-color: #e1e1e1")
         self.pushButton_5 = QtWidgets.QPushButton(self.frame)
-        self.pushButton_5.setGeometry(QtCore.QRect(610, 340, 121, 41))
+        self.pushButton_5.setGeometry(QtCore.QRect(1421, 340, 121, 41))
         self.pushButton_5.setObjectName(LABELS[4])
         self.pushButton_5.clicked.connect(lambda: self.selectButton(self.pushButton_5))
         self.pushButton_5.setStyleSheet("background-color: #e1e1e1")
         self.pushButton_6 = QtWidgets.QPushButton(self.frame)
-        self.pushButton_6.setGeometry(QtCore.QRect(730, 340, 121, 41))
+        self.pushButton_6.setGeometry(QtCore.QRect(1542, 340, 121, 41))
         self.pushButton_6.setObjectName(LABELS[5])
         self.pushButton_6.clicked.connect(lambda: self.selectButton(self.pushButton_6))
         self.pushButton_6.setStyleSheet("background-color: #e1e1e1")
         self.pushButton_7 = QtWidgets.QPushButton(self.frame)
-        self.pushButton_7.setGeometry(QtCore.QRect(480, 380, 201, 41))
+        self.pushButton_7.setGeometry(QtCore.QRect(1300, 380, 181, 41))
         self.pushButton_7.setObjectName(LABELS[6])
         self.pushButton_7.clicked.connect(lambda: self.selectButton(self.pushButton_7))
         self.pushButton_7.setStyleSheet("background-color: #e1e1e1")
         self.pushButton_8 = QtWidgets.QPushButton(self.frame)
-        self.pushButton_8.setGeometry(QtCore.QRect(680, 380, 171, 41))
+        self.pushButton_8.setGeometry(QtCore.QRect(1481, 380, 181, 41))
         self.pushButton_8.setObjectName("pushButton_8")
         self.pushButton_8.clicked.connect(lambda: self.selectButton(self.pushButton_8))
         self.pushButton_8.setStyleSheet("background-color: #e1e1e1")
 
         # Live Camera Frame
         self.label = QtWidgets.QLabel(self.frame)
-        self.video_width = 470
-        self.video_height = 420
+        self.video_width = 1024
+        self.video_height = 768
         self.label.resize(self.video_width, self.video_height)
 
         self.label.setScaledContents(True)
