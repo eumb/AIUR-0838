@@ -68,7 +68,8 @@
 
 ## Requirements
 
-- python-urx: v0.11.02 <a href="https://github.com/SintefManufacturing/python-urx">https://github.com/SintefManufacturing/python-urx</a>
+- python-urx: v0.11.02 <a href="https://github.com/Mofeywalker/python-urx">https://github.com/Mofeywalker/python-urx</a>
+- 
 - yolov5: <a href="https://github.com/ultralytics/yolov5">https://github.com/ultralytics/yolov5</a>
 
 
