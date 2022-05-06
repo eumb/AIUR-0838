@@ -11,7 +11,7 @@ from PySide2.QtMultimedia import QCameraInfo
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QThread
 
 IMAGES_PATH = "../../train_data/images/categorized/"
-LABELS = ["mov_up", "mov_dwn", "mov_lft", "mov_rght", "mov_frt", "mov_bck", "spin_l", "spin_r", "gr_open", "gr_close"]
+LABELS = ["mov_up", "mov_dwn", "mov_lft", "mov_rght", "mov_frt", "mov_bck", "gr_open", "gr_close", "spin_l", "spin_r"]
 PREVIEW_TXT = "Pick a gesture you want to capture"
 DESCRIPTION = "Press c to save the frame or ESC to exit the program."
 CAPTURE_FAIL = "Please select a gesture from the buttons below."
@@ -25,7 +25,7 @@ BTNS_TXT = ["Recording Move Up",
             "Recording Gripper Close",
             "Recording Gripper Open",
             "Recording SPIN LEFT",
-            "Recording SPIN RIGHT",]
+            "Recording SPIN RIGHT"]
 
 class VideoThread(QThread):
     change_pixmap_signal = pyqtSignal(np.ndarray)
@@ -45,6 +45,7 @@ class VideoThread(QThread):
         while self._run_flag:
             ret, self.cv_img = cap.read()
             if ret:
+                self.cv_img = cv2.flip(self.cv_img, 1)
                 self.change_pixmap_signal.emit(self.cv_img)
 
         # shut down capture system
@@ -142,9 +143,9 @@ class App(QWidget):
         btn_j5 = QPushButton( 'Move Forward' ); btn_j5.clicked.connect(lambda: self.btnHandler(5))
         btn_j6 = QPushButton( 'Move Backward' ); btn_j6.clicked.connect(lambda: self.btnHandler(6))
         btn_stop = QPushButton( 'Gripper Close' ); btn_stop.clicked.connect(lambda: self.btnHandler(7))
-        btn_confirm = QPushButton( 'Gripper Open' ); btn_confirm.clicked.connect(lambda: self.btnHandler(9))
-        btn_spinL = QPushButton( 'Spin Left' ); btn_spinL.clicked.connect(lambda: self.btnHandler(10))
-        btn_spinR = QPushButton( 'Spin Right' ); btn_spinR.clicked.connect(lambda: self.btnHandler(11))
+        btn_confirm = QPushButton( 'Gripper Open' ); btn_confirm.clicked.connect(lambda: self.btnHandler(8))
+        btn_spinL = QPushButton( 'Spin Left' ); btn_spinL.clicked.connect(lambda: self.btnHandler(9))
+        btn_spinR = QPushButton( 'Spin Right' ); btn_spinR.clicked.connect(lambda: self.btnHandler(10))
 
         # create layout for buttons set1 
         window_layout1 = QHBoxLayout()

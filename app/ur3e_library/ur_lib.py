@@ -17,7 +17,7 @@ class UR3_Robot:
     socket = 0
 
     def __init__(self):
-        self.rob = urx.Robot("93.122.237.129")
+        self.rob = urx.Robot("192.168.56.101")
         #
         self.rob.set_tcp((0, 0, 0.1, 0, 0, 0))
         self.rob.set_payload(2, (0, 0, 0.1))
