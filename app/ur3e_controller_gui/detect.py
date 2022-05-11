@@ -57,7 +57,7 @@ def detect(save_img=False):
     # Initialize
     set_logging()
     device = select_device(opt.device) # CPU
-    #device = torch.device('cuda:1') # GPU
+    #device = torch.device('cuda:0') # GPU
     print(device)
     half = device.type != 'cpu'  # half precision only supported on CUDA
 
@@ -66,7 +66,7 @@ def detect(save_img=False):
     stride = int(model.stride.max())  # model stride
     imgsz = check_img_size(imgsz, s=stride)  # check img_size
     if half:
-        model.half()  # to FP16
+        model.half()  # to FP16w
 
     # Second-stage classifier
     classify = False

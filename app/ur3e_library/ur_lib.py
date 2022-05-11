@@ -17,8 +17,8 @@ class UR3_Robot:
     socket = 0
 
     def __init__(self):
-        self.rob = urx.Robot("192.168.56.101")
-        #
+        #self.rob = urx.Robot("93.122.237.129")
+        self.rob = urx.Robot("192.168.2.156")
         self.rob.set_tcp((0, 0, 0.1, 0, 0, 0))
         self.rob.set_payload(2, (0, 0, 0.1))
         self.socket = self.rob.secmon._s_secondary
@@ -138,7 +138,7 @@ class UR3_Robot:
         d = {'r': self.move_right, 'l': self.move_left, 'u': self.move_up, 'd': self.move_down, 'f': self.move_front,
              'b': self.move_back, 'def': self.move_default, 'sl': self.spin_left, 'sr': self.spin_right,
              'o': self.open_grip,
-             'c': self.close_grip}
+             'c': self.close_grip,}
 
         d[direction]()
 
